@@ -18,8 +18,38 @@ var tempFileNames = {};  //记录源监控路径文件名(属于自己编辑的文件)
 	//log("RegExp -------> " + process.argv[4]);
 	(process.argv.length > 4) && (filterRx = new RegExp(process.argv[4]));	
 	addWatcher("", "");  //初始目录里子目录/文件监控(包括本目录)
+	initSyncFiles("", "");  //初始同步文件
 	//log("my files ==> " + util.inspect(tempFileNames));
 })();
+
+/**
+ * 初始同步文件
+ * @param {Object} dir
+ * @param {Object} filename
+ */
+function initSyncFiles(dir, filename){
+	fs.stat(srcDir + dir + filename, function(err, stats){
+		if(err) throw err;
+		if(stats.isDirectory()){  //目录,递归
+			var files = fs.readdirSync(srcDir + dir + filename);
+			files.forEach(function(fname){
+				initSyncFiles(dir + filename + "/", fname);
+			});
+		}else{
+			if (!fs.existsSync(disDir + dir + filename)) {  //目标文件不存在
+				copyFiles(dir, filename);
+			}else{  //检查源文件是否已发生修改
+				fs.stat(disDir + dir + filename, function(err2, stats2){
+					if (err2) throw err2;
+					if (stats.mtime.getTime() != stats2.mtime.getTime()) { //文件已发生修改,同步
+						copyFiles(dir, filename);
+					}
+				});
+			}
+		}
+	});
+}
+
 /**
  * 目录监控回调
  * @param {Object} dir
@@ -41,6 +71,7 @@ function watchFloder(dir){
 		}
 	};
 }
+
 /**
  * 监控文件回调
  * @param {Object} dir
@@ -52,11 +83,12 @@ function watchFile(dir, fname){
 			fs.unwatchFile(srcDir + dir + fname);
 			return;
 		}
-		if(curr.mtime != prev.mtime){  //文件发生改动,同步更新目标文件
+		if(curr.mtime.getTime() != prev.mtime.getTime()){  //文件发生改动,同步更新目标文件
 			copyFiles(dir, fname);
 		}
 	};
 }
+
 /**
  * 增加目录/文件监控	
  * @param {Object} dir
@@ -84,6 +116,7 @@ function addWatcher(dir, filename){
 		log("init watcher file : " + srcDir + dir + filename);
 	}
 }
+
 /**
  * 文件复制
  * @param {Object} dir
@@ -107,11 +140,17 @@ function copyFiles(dir, fnames){
 			process.nextTick(function(){
 				var data = fs.readFileSync(srcDir + dir + fname);
 				fs.writeFileSync(disDir + dir + fname, data);
+				fs.open(disDir + dir + fname, "r+", function(err, fd){  //打开修改目标文件
+					if(err) throw err;
+					fs.futimesSync(fd, stats.atime, stats.mtime);  //同步文件时间戳
+					fs.close(fd);
+				});				
 				log("copy file : " + srcDir + dir + fname + " to " + disDir + dir + fname);
 			});
 		}
 	});
 }
+
 /**
  * 删除目录/文件
  * @param {Object} dir
@@ -120,10 +159,13 @@ function copyFiles(dir, fnames){
 function delFiles(dir, fnames){
 	if(!fnames || fnames.length == 0) return;
 	fnames.forEach(function(fname){
+		if(!fs.existsSync(disDir + dir + fname)){  //目标文件不存在
+			return;
+		}
 		if (!tempFileNames[dir + fname]) {
 			log(dir + fname + " is not your file. skip delete.");
 			return; //跳过非自己编辑的文件,避免删错别人的文件
-		}		
+		}
 		var stats = fs.statSync(disDir + dir + fname);
 		if(stats.isDirectory()){  //目录,递归删除子文件
 			delFiles(dir + fname + "/", fs.readdirSync(disDir + dir + fname));
@@ -137,6 +179,7 @@ function delFiles(dir, fnames){
 		log("delete " + (stats.isDirectory() ? "folder" : "file") + " : " + disDir + dir + fname);
 	});	
 }
+
 /**
  * 日志格式化输入
  * @param {Object} msg
