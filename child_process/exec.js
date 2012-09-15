@@ -1,5 +1,5 @@
 var exec = require("child_process").exec;
-//pngͼƬѹ��
+//png图片压缩
 process.nextTick(function(){
 	var args = process.argv.slice(2);
 	if(args.length < 2) throw Error("Invalid parameters..");

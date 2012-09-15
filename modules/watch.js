@@ -3,12 +3,12 @@ var path = require("path");
 var util = require("util");
 /**
  * node $WATCH_JS_HOME/watch.js srcDir disDir regexp
- * regexp -- Èç "^\." (ÓÃ""·â±Õ)
+ * regexp -- å¦‚ "^\." (ç”¨""å°é—­)
  */
-var srcDir = "";  //²ÎÊı1--Ô´¼à¿ØÂ·¾¶
-var disDir = "";  //²ÎÊı2--Ä¿±êÂ·¾¶
-var filterRx = null;  //¹ıÂËÎÄ¼şÃûÕıÔò
-var tempFileNames = {};  //¼ÇÂ¼Ô´¼à¿ØÂ·¾¶ÎÄ¼şÃû(ÊôÓÚ×Ô¼º±à¼­µÄÎÄ¼ş)
+var srcDir = "";  //å‚æ•°1--æºç›‘æ§è·¯å¾„
+var disDir = "";  //å‚æ•°2--ç›®æ ‡è·¯å¾„
+var filterRx = null;  //è¿‡æ»¤æ–‡ä»¶åæ­£åˆ™
+var tempFileNames = {};  //è®°å½•æºç›‘æ§è·¯å¾„æ–‡ä»¶å(å±äºè‡ªå·±ç¼–è¾‘çš„æ–‡ä»¶)
 (function(){
 	if(process.argv.length < 4){
 		throw new Error("Invalid parameters.");
@@ -17,31 +17,31 @@ var tempFileNames = {};  //¼ÇÂ¼Ô´¼à¿ØÂ·¾¶ÎÄ¼şÃû(ÊôÓÚ×Ô¼º±à¼­µÄÎÄ¼ş)
 	disDir = process.argv[3];
 	//log("RegExp -------> " + process.argv[4]);
 	(process.argv.length > 4) && (filterRx = new RegExp(process.argv[4]));	
-	addWatcher("", "");  //³õÊ¼Ä¿Â¼Àï×ÓÄ¿Â¼/ÎÄ¼ş¼à¿Ø(°üÀ¨±¾Ä¿Â¼)
-	initSyncFiles("", "");  //³õÊ¼Í¬²½ÎÄ¼ş
+	addWatcher("", "");  //åˆå§‹ç›®å½•é‡Œå­ç›®å½•/æ–‡ä»¶ç›‘æ§(åŒ…æ‹¬æœ¬ç›®å½•)
+	initSyncFiles("", "");  //åˆå§‹åŒæ­¥æ–‡ä»¶
 	//log("my files ==> " + util.inspect(tempFileNames));
 })();
 
 /**
- * ³õÊ¼Í¬²½ÎÄ¼ş
+ * åˆå§‹åŒæ­¥æ–‡ä»¶
  * @param {Object} dir
  * @param {Object} filename
  */
 function initSyncFiles(dir, filename){
 	fs.stat(srcDir + dir + filename, function(err, stats){
 		if(err) throw err;
-		if(stats.isDirectory()){  //Ä¿Â¼,µİ¹é
+		if(stats.isDirectory()){  //ç›®å½•,é€’å½’
 			var files = fs.readdirSync(srcDir + dir + filename);
 			files.forEach(function(fname){
 				initSyncFiles(dir + filename + "/", fname);
 			});
 		}else{
-			if (!fs.existsSync(disDir + dir + filename)) {  //Ä¿±êÎÄ¼ş²»´æÔÚ
+			if (!fs.existsSync(disDir + dir + filename)) {  //ç›®æ ‡æ–‡ä»¶ä¸å­˜åœ¨
 				copyFiles(dir, filename);
-			}else{  //¼ì²éÔ´ÎÄ¼şÊÇ·ñÒÑ·¢ÉúĞŞ¸Ä
+			}else{  //æ£€æŸ¥æºæ–‡ä»¶æ˜¯å¦å·²å‘ç”Ÿä¿®æ”¹
 				fs.stat(disDir + dir + filename, function(err2, stats2){
 					if (err2) throw err2;
-					if (stats.mtime.getTime() != stats2.mtime.getTime()) { //ÎÄ¼şÒÑ·¢ÉúĞŞ¸Ä,Í¬²½
+					if (stats.mtime.getTime() != stats2.mtime.getTime()) { //æ–‡ä»¶å·²å‘ç”Ÿä¿®æ”¹,åŒæ­¥
 						copyFiles(dir, filename);
 					}
 				});
@@ -51,20 +51,20 @@ function initSyncFiles(dir, filename){
 }
 
 /**
- * Ä¿Â¼¼à¿Ø»Øµ÷
+ * ç›®å½•ç›‘æ§å›è°ƒ
  * @param {Object} dir
  */
 function watchFloder(dir){
 	return function(event, filename){
 		if(event != "rename") return;
-		if(filename){   //ĞÂÔöÄ¿Â¼/ÎÄ¼ş			
+		if(filename){   //æ–°å¢ç›®å½•/æ–‡ä»¶			
 			copyFiles(dir, filename);
 			addWatcher(dir, filename);
 			//log("my files ==> " + util.inspect(tempFileNames));
-		}else{  //¿ÉÄÜÊÇÉ¾³ıÄ¿Â¼/ÎÄ¼ş(Òª×ö¼ìÑé)
+		}else{  //å¯èƒ½æ˜¯åˆ é™¤ç›®å½•/æ–‡ä»¶(è¦åšæ£€éªŒ)
 			var srcFiles = fs.readdirSync(srcDir + dir);
 			var disFiles = fs.readdirSync(disDir + dir);
-			var needDelFiles = disFiles.filter(function(fname){  //¹ıÂË³öÄ¿±êÓëÔ´µÄ²¹¼¯
+			var needDelFiles = disFiles.filter(function(fname){  //è¿‡æ»¤å‡ºç›®æ ‡ä¸æºçš„è¡¥é›†
 				return !~srcFiles.indexOf(fname);
 			});
 			delFiles(dir, needDelFiles);
@@ -73,52 +73,52 @@ function watchFloder(dir){
 }
 
 /**
- * ¼à¿ØÎÄ¼ş»Øµ÷
+ * ç›‘æ§æ–‡ä»¶å›è°ƒ
  * @param {Object} dir
  * @param {Object} fname
  */
 function watchFile(dir, fname){
 	return function(curr, prev){
-		if(curr.size == 0){ //½â³ı¶Ô¸ÃÔ´ÎÄ¼ş¼à¿Ø
+		if(curr.size == 0){ //è§£é™¤å¯¹è¯¥æºæ–‡ä»¶ç›‘æ§
 			fs.unwatchFile(srcDir + dir + fname);
 			return;
 		}
-		if(curr.mtime.getTime() != prev.mtime.getTime()){  //ÎÄ¼ş·¢Éú¸Ä¶¯,Í¬²½¸üĞÂÄ¿±êÎÄ¼ş
+		if(curr.mtime.getTime() != prev.mtime.getTime()){  //æ–‡ä»¶å‘ç”Ÿæ”¹åŠ¨,åŒæ­¥æ›´æ–°ç›®æ ‡æ–‡ä»¶
 			copyFiles(dir, fname);
 		}
 	};
 }
 
 /**
- * Ôö¼ÓÄ¿Â¼/ÎÄ¼ş¼à¿Ø	
+ * å¢åŠ ç›®å½•/æ–‡ä»¶ç›‘æ§	
  * @param {Object} dir
  * @param {Object} filename
  */
 function addWatcher(dir, filename){
-	if(filterRx && filterRx.test(filename)) return;  //¹ıÂËÎÄ¼şÃû
+	if(filterRx && filterRx.test(filename)) return;  //è¿‡æ»¤æ–‡ä»¶å
 	(dir + filename != "") && (tempFileNames[dir + filename] = true);
 	var stats = fs.statSync(srcDir + dir + filename);
-	if(stats.isDirectory()){  //Ä¿Â¼
+	if(stats.isDirectory()){  //ç›®å½•
 		var wer = fs.watch(srcDir + dir + filename, watchFloder(dir + filename + "/"));
-		wer.on("error", function(){  //¼à¿Ø³ö´í(¼à¿ØµÄÄ¿Â¼±»É¾³ı),¹Ø±Õ¸ÃÄ¿Â¼µÄ¼à¿Ø
+		wer.on("error", function(){  //ç›‘æ§å‡ºé”™(ç›‘æ§çš„ç›®å½•è¢«åˆ é™¤),å…³é—­è¯¥ç›®å½•çš„ç›‘æ§
 			wer.close();
 		});
 		log("init watcher folder : " + srcDir + dir + filename);
-		//µİ¹éÉèÖÃ×Ó¼¶¼à¿Ø
+		//é€’å½’è®¾ç½®å­çº§ç›‘æ§
 		var srcFiles = fs.readdirSync(srcDir + dir + filename);
 		if(!srcFiles || srcFiles.length == 0) return;
 		srcFiles.forEach(function(fname){
 			if(fname.indexOf(".") == 0) return;
 			addWatcher(dir + filename + "/", fname);
 		});
-	}else{  //ÎÄ¼ş
+	}else{  //æ–‡ä»¶
 		fs.watchFile(srcDir + dir + filename, watchFile(dir + "/", filename));
 		log("init watcher file : " + srcDir + dir + filename);
 	}
 }
 
 /**
- * ÎÄ¼ş¸´ÖÆ
+ * æ–‡ä»¶å¤åˆ¶
  * @param {Object} dir
  * @param {Object} fnames
  */
@@ -128,21 +128,21 @@ function copyFiles(dir, fnames){
 		fnames = [fnames];
 	}
 	fnames.forEach(function(fname){
-		if(filterRx && filterRx.test(fname)) return;  //¹ıÂËÎÄ¼şÃû
+		if(filterRx && filterRx.test(fname)) return;  //è¿‡æ»¤æ–‡ä»¶å
 		var stats = fs.statSync(srcDir + dir + fname);
-		if(stats.isDirectory()){  //Ä¿Â¼(µİ¹é¸´ÖÆ×Ó¼¶)
+		if(stats.isDirectory()){  //ç›®å½•(é€’å½’å¤åˆ¶å­çº§)
 			if(!fs.existsSync(disDir + dir + fname)){
 				fs.mkdirSync(disDir + dir + fname);
 			}
 			log("add a new folder : " + disDir + dir + fname);
 			copyFiles(dir + fname + "/", fs.readdirSync(srcDir + dir + fname));
-		}else{  //ÎÄ¼ş
+		}else{  //æ–‡ä»¶
 			process.nextTick(function(){
 				var data = fs.readFileSync(srcDir + dir + fname);
 				fs.writeFileSync(disDir + dir + fname, data);
-				fs.open(disDir + dir + fname, "r+", function(err, fd){  //´ò¿ªĞŞ¸ÄÄ¿±êÎÄ¼ş
+				fs.open(disDir + dir + fname, "r+", function(err, fd){  //æ‰“å¼€ä¿®æ”¹ç›®æ ‡æ–‡ä»¶
 					if(err) throw err;
-					fs.futimesSync(fd, stats.atime, stats.mtime);  //Í¬²½ÎÄ¼şÊ±¼ä´Á
+					fs.futimesSync(fd, stats.atime, stats.mtime);  //åŒæ­¥æ–‡ä»¶æ—¶é—´æˆ³
 					fs.close(fd);
 				});				
 				log("copy file : " + srcDir + dir + fname + " to " + disDir + dir + fname);
@@ -152,25 +152,25 @@ function copyFiles(dir, fnames){
 }
 
 /**
- * É¾³ıÄ¿Â¼/ÎÄ¼ş
+ * åˆ é™¤ç›®å½•/æ–‡ä»¶
  * @param {Object} dir
  * @param {Object} fnames
  */
 function delFiles(dir, fnames){
 	if(!fnames || fnames.length == 0) return;
 	fnames.forEach(function(fname){
-		if(!fs.existsSync(disDir + dir + fname)){  //Ä¿±êÎÄ¼ş²»´æÔÚ
+		if(!fs.existsSync(disDir + dir + fname)){  //ç›®æ ‡æ–‡ä»¶ä¸å­˜åœ¨
 			return;
 		}
 		if (!tempFileNames[dir + fname]) {
 			log(dir + fname + " is not your file. skip delete.");
-			return; //Ìø¹ı·Ç×Ô¼º±à¼­µÄÎÄ¼ş,±ÜÃâÉ¾´í±ğÈËµÄÎÄ¼ş
+			return; //è·³è¿‡éè‡ªå·±ç¼–è¾‘çš„æ–‡ä»¶,é¿å…åˆ é”™åˆ«äººçš„æ–‡ä»¶
 		}
 		var stats = fs.statSync(disDir + dir + fname);
-		if(stats.isDirectory()){  //Ä¿Â¼,µİ¹éÉ¾³ı×ÓÎÄ¼ş
+		if(stats.isDirectory()){  //ç›®å½•,é€’å½’åˆ é™¤å­æ–‡ä»¶
 			delFiles(dir + fname + "/", fs.readdirSync(disDir + dir + fname));
 			fs.rmdirSync(disDir + dir + fname);
-		}else{  //É¾³ıÎÄ¼ş
+		}else{  //åˆ é™¤æ–‡ä»¶
 			fs.unwatchFile(srcDir + dir + fname);
 			fs.unlinkSync(disDir + dir + fname);
 		}
@@ -181,7 +181,7 @@ function delFiles(dir, fnames){
 }
 
 /**
- * ÈÕÖ¾¸ñÊ½»¯ÊäÈë
+ * æ—¥å¿—æ ¼å¼åŒ–è¾“å…¥
  * @param {Object} msg
  */
 function log(msg){
