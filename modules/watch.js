@@ -15,11 +15,9 @@ var tempFileNames = {};  //记录源监控路径文件名(属于自己编辑的�
 	}
 	srcDir = process.argv[2];
 	disDir = process.argv[3];
-	//log("RegExp -------> " + process.argv[4]);
 	(process.argv.length > 4) && (filterRx = new RegExp(process.argv[4]));	
 	addWatcher("", "");  //初始目录里子目录/文件监控(包括本目录)
 	initSyncFiles("", "");  //初始同步文件
-	//log("my files ==> " + util.inspect(tempFileNames));
 })();
 
 /**
@@ -60,7 +58,6 @@ function watchFloder(dir){
 		if(filename){   //新增目录/文件			
 			copyFiles(dir, filename);
 			addWatcher(dir, filename);
-			//log("my files ==> " + util.inspect(tempFileNames));
 		}else{  //可能是删除目录/文件(要做检验)
 			var srcFiles = fs.readdirSync(srcDir + dir);
 			var disFiles = fs.readdirSync(disDir + dir);
@@ -175,7 +172,6 @@ function delFiles(dir, fnames){
 			fs.unlinkSync(disDir + dir + fname);
 		}
 		delete tempFileNames[dir + fname];
-		//log("my files ==> " + util.inspect(tempFileNames));
 		log("delete " + (stats.isDirectory() ? "folder" : "file") + " : " + disDir + dir + fname);
 	});	
 }
