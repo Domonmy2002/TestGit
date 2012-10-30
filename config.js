@@ -1,6 +1,6 @@
 ﻿exports.prot = 8888;
 
-exports.fileFolder = "files";
+exports.fileFolder = "modules";  //files
 
 exports.types = {
   "css": "text/css", 
