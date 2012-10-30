@@ -1,6 +1,6 @@
-﻿exports.prot = 8888;
+﻿exports.prot = 8889;
 
-exports.fileFolder = "files";
+exports.fileFolder = "http";
 
 exports.types = {
   "css": "text/css", 
