@@ -1,0 +1,26 @@
+<html>
+<head>
+	<title>test</title>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<script type="text/javascript" src="http://localhost:8889/js/jquery-1.7.js"></script>
+	<script type="text/javascript">
+		function getTime(){			
+			$.ajax({
+				type : "get",
+				url : "http://localhost:8899/",
+				dataType : "jsonp",
+				jsonpCallback : "jsonpCb",
+				cache : true
+			});
+		};
+		window.jsonCb = function(msg){
+			var testDiv = $("#testDiv");
+			testDiv.text(msg);
+		};
+	</script>
+</head>
+<body>
+	<div id="testDiv"></div>
+	<input type="button" value="拉取时间" onclick="getTime()"/>
+</body>
+</html>
