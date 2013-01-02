@@ -24,6 +24,6 @@ console.log(personEntity.name);
 PersonModel.find(function(err, persons){
 	for(var i = 0, len = persons.length; i < len; ++i){
 		console.log("person : " + i + "\n" + JSON.stringify(persons[i]));
-		console.log("full name "  + i + " : " + persons[i].name.full)
+		console.log("full name "  + i + " : " + persons[i].name.full);
 	}
 });
