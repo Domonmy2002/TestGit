@@ -15,10 +15,10 @@ var server = http.createServer(function(req, res){
 		var imsDate = Date.parse(ifModifiedSince);
 		iMs = now.getTime() - imsDate < 20000;
 	}*/
-	if(ifNoneMatch){
+	/*if(ifNoneMatch){
 		var et = parseInt(ifNoneMatch);
 		iMs = now.getTime() - et < 20000;
-	}
+	}*/
 	if(iMs){
 		res.writeHead(304, {"Content-Type" : "text/plain; charset=utf-8"});
 		res.end();
@@ -26,11 +26,12 @@ var server = http.createServer(function(req, res){
 		//3.Last-Modified
 		//res.setHeader("Last-Modified", now.toUTCString());
 		//4.ETag
-		res.setHeader("ETag", now.getTime());
+		//res.setHeader("ETag", now.getTime());
 		
 		//res.setHeader("Connection", "close");
+		res.setHeader("Set-Cookie", "test_cookie=test;expires=" + (new Date(now.getTime() + 20000)).toUTCString()+ "; test_cookie2=test2");
 		res.writeHead(200, {"Content-Type" : "text/plain; charset=utf-8"});	
-		res.end("jsonCb('" + now.toString() + "')");
+		res.end("jsonpCb('" + now.toString() + "')");
 	}
 });
 

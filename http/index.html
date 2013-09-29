@@ -3,19 +3,23 @@
 	<title>test</title>
 	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 	<script type="text/javascript" src="http://localhost:8889/js/jquery-1.7.js"></script>
+	<script type="text/javascript" src="http://localhost:8889/js/jquery.jsonp-2.4.0.js"></script>
 	<script type="text/javascript">
 		function getTime(){			
-			$.ajax({
+			$.jsonp({
 				type : "get",
 				url : "http://localhost:8899/",
-				dataType : "jsonp",
-				jsonpCallback : "jsonpCb",
-				cache : true
+				callback : "jsonpCb",
+				cache : true,
+				timeout : 3000,
+				success : function(json){
+					var testDiv = $("#testDiv");
+					testDiv.text(json);
+				},
+				error : function(obj, str){  //str : error/timeout
+					alert(str + " : " + obj.state() + " : " + obj.url);
+				}
 			});
-		};
-		window.jsonCb = function(msg){
-			var testDiv = $("#testDiv");
-			testDiv.text(msg);
 		};
 	</script>
 </head>
