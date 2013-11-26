@@ -31,6 +31,7 @@ function initSyncFiles(dir, filename){
 		if(stats.isDirectory()){  //目录,递归
 			var files = fs.readdirSync(srcDir + dir + filename);
 			files.forEach(function(fname){
+				if(filterRx && filterRx.test(fname)) return;  //过滤文件夹
 				initSyncFiles(dir + filename + "/", fname);
 			});
 		}else{
