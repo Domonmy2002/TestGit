@@ -24,6 +24,8 @@ exports.types = {
   "xml": "text/xml" 
 };
 
+exports.haha={a:1};
+
 exports.Expires = {
 	fileMatch : /^(gif|png|bmp|jpg|js|css)$/ig,
 	maxAge : 60*60*24*365
