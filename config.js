@@ -26,7 +26,7 @@ exports.types = {
 
 exports.haha={a:1};
 exports.hbhb={b:1};
-
+exports.hchc={c:3,b:2};
 exports.Expires = {
 	fileMatch : /^(gif|png|bmp|jpg|js|css)$/ig,
 	maxAge : 60*60*24*365
