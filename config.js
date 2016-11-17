@@ -26,7 +26,6 @@ exports.types = {
 
 exports.haha={a:1};
 exports.hbhb={b:1};
-exports.hchc={c:3};
 
 exports.Expires = {
 	fileMatch : /^(gif|png|bmp|jpg|js|css)$/ig,
