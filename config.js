@@ -24,6 +24,11 @@ exports.types = {
   "xml": "text/xml" 
 };
 
+exports.modifys = {
+	ab : 1,
+	name : 'ab'
+};
+
 exports.Expires = {
 	fileMatch : /^(gif|png|bmp|jpg|js|css)$/ig,
 	maxAge : 60*60*24*365
