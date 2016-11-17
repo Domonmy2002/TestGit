@@ -58,7 +58,7 @@ var server = http.createServer(function(request, response){
 			}
 		});
 	};
-	console.log(123);
+
 	pathHandle(realPath);
 });
 server.listen(config.prot);
