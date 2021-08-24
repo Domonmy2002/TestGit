@@ -35,4 +35,4 @@ exports.Compress = {
 
 exports.Welcome = {
 	file : "index.html"
-};
+}
